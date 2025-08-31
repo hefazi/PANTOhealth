@@ -1,0 +1,30 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: backend_service
+    host: backend-service
+    port: 9001
+    protocol: http
+    routes:
+      - name: backend_route
+        paths:
+          - /backend
+        strip_path: true
+
+  - name: producer_service
+    host: producer-service
+    port: 9002
+    protocol: http
+    routes:
+      - name: producer_route
+        paths:
+          - /producer
+        strip_path: true
+
+plugins:
+  - name: rate-limiting
+    config:
+      second: 35
+      hour: 500
+      policy: local

@@ -1,0 +1,138 @@
+services:
+  backend-service:
+    build:
+      context: ./panto-health-backend
+      dockerfile: Dockerfile
+    container_name: panto_backend
+    ports:
+      - "9001:9001"
+    env_file:
+      - ./panto-health-backend/.env.docker
+    volumes:
+      - ./backend:/app/backend
+      - /app/backend/node_modules
+    restart: on-failure
+    networks:
+      - backend
+    logging:
+      driver: fluentd
+      options:
+        fluentd-async: "true"
+        fluentd-address: localhost:24224
+        tag: backend-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9001/api/health"]
+      interval: 1h
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  producer-service:
+    build:
+      context: ./panto-health-producer
+      dockerfile: Dockerfile
+    container_name: panto_producer
+    ports:
+      - "9002:9002"
+    env_file:
+      - ./panto-health-producer/.env.docker
+    volumes:
+      - ./producer:/app/producer
+      - /app/producer/node_modules
+    restart: on-failure
+    networks:
+      - backend
+    logging:
+      driver: fluentd
+      options:
+        fluentd-async: "true"
+        fluentd-address: localhost:24224
+        tag: producer-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/api/health"]
+      interval: 1h
+      timeout: 5s
+      retries: 1
+      start_period: 60s
+
+  kong:
+    build:
+      context: ./kong
+      dockerfile: Dockerfile
+    container_name: panto_kong
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+      - "8002:8002"
+      - "8444:8444"
+    restart: unless-stopped
+    networks:
+      - backend
+    logging:
+      driver: fluentd
+      options:
+        fluentd-async: "true"
+        fluentd-address: localhost:24224
+        tag: kong-gateway
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: panto_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-master123}
+    volumes:
+      - rabbit_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - backend
+
+  mongodb:
+    build:
+      context: .
+      args:
+        MONGO_VERSION: latest
+    environment:
+      MONGO_REPLICA_HOST: 127.0.0.1
+      MONGO_REPLICA_PORT: 27017
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-master123}
+      MONGO_COMMAND: "mongosh"
+    container_name: panto_mongodb
+    ports:
+      - "27017:27017"
+      - "28017:28017"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [ "CMD", "mongosh", "admin", "--port", "27017", "--eval", "db.adminCommand('ping').ok", ]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+    volumes:
+      - mongo_data:/data/mongo
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: backend
+    external: true
+
+volumes:
+  rabbit_data:
+  mongo_data:
