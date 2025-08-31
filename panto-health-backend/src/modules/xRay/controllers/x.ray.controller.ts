@@ -3,6 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { XRayService } from '../services/x.ray.service';
 import { XRay } from '../schemas/x.ray.schema';
+import { CreateXRayDto } from '../dtos/create.x.ray.dto';
+import { UpdateXRayDto } from '../dtos/update.x.ray.dto';
 
 @ApiTags('message')
 @Controller({
@@ -13,7 +15,7 @@ export class XRayController {
   constructor(private readonly xRayService: XRayService) {}
 
   @Post()
-  async create(@Body() createXRayDto: any): Promise<XRay> {
+  async create(@Body() createXRayDto: CreateXRayDto): Promise<XRay> {
     return this.xRayService.create(createXRayDto);
   }
 
@@ -32,7 +34,7 @@ export class XRayController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateXRayDto: any): Promise<XRay> {
+  async update(@Param('id') id: string, @Body() updateXRayDto: UpdateXRayDto): Promise<XRay> {
     const signal = await this.xRayService.update(id, updateXRayDto);
     if (!signal) {
       throw new HttpException('Signal not found', HttpStatus.NOT_FOUND);

@@ -1,5 +1,6 @@
-import { Payload } from '@nestjs/microservices';
 import { XRay } from '../schemas/x.ray.schema';
+import { UpdateXRayDto } from '../dtos/update.x.ray.dto';
+import { CreateXRayDto } from '../dtos/create.x.ray.dto';
 
 export interface IXRayService {
   /**
@@ -12,7 +13,7 @@ export interface IXRayService {
    * Creates a new X-ray document.
    * @param createXRayDto The DTO containing the data for the new document.
    */
-  create(createXRayDto: any): Promise<XRay>;
+  create(createXRayDto: CreateXRayDto): Promise<XRay>;
 
   /**
    * Finds all X-ray documents.
@@ -30,7 +31,7 @@ export interface IXRayService {
    * @param id The ID of the document to update.
    * @param updateXRayDto The DTO with the fields to update.
    */
-  update(id: string, updateXRayDto: any): Promise<XRay>;
+  update(id: string, updateXRayDto: UpdateXRayDto): Promise<XRay>;
 
   /**
    * Deletes an X-ray document by its ID.

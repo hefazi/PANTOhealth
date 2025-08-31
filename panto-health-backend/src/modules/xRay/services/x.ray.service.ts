@@ -5,6 +5,8 @@ import { IXRayService } from '../interfaces/x.ray.service.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { DataPoint, XRay, XRayDocument } from '../schemas/x.ray.schema';
 import { Model } from 'mongoose';
+import { CreateXRayDto } from '../dtos/create.x.ray.dto';
+import { UpdateXRayDto } from '../dtos/update.x.ray.dto';
 
 @Injectable()
 export class XRayService implements IXRayService {
@@ -46,7 +48,7 @@ export class XRayService implements IXRayService {
     }
   }
 
-  async create(createXRayDto: any): Promise<XRay> {
+  async create(createXRayDto: CreateXRayDto): Promise<XRay> {
     const newXRay = new this.xrayModel(createXRayDto);
     return newXRay.save();
   }
@@ -59,7 +61,7 @@ export class XRayService implements IXRayService {
     return this.xrayModel.findById(id).exec();
   }
 
-  async update(id: string, updateXRayDto: any): Promise<XRay> {
+  async update(id: string, updateXRayDto: UpdateXRayDto): Promise<XRay> {
     await this.xrayModel.findByIdAndUpdate(id, updateXRayDto).exec();
     return this.findOne(id);
   }
