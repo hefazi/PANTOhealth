@@ -10,11 +10,13 @@ import { HttpExceptionFilter } from 'src/filters/http.exception.filter';
 import { AppController } from './app.controller';
 import { CommonModule } from '../common/common.module';
 import { TerminusModule } from '@nestjs/terminus';
+import { ProducerModule } from '../modules/producer/producer.module';
 
 @Module({
   imports: [
     CommonModule,
     TerminusModule,
+    ProducerModule,
     ClientsModule.registerAsync([
       {
         name: 'X_RAY_SERVICE',
