@@ -16,8 +16,8 @@ export const setupSwagger = async (app: INestApplication) => {
   const docPrefix: string = configService.get<string>('doc.prefix');
 
   const documentBuild = new DocumentBuilder()
-    .addServer('http://localhost:8000/notification', 'develop')
     .addServer('http://localhost:9002', 'local')
+    .addServer('http://localhost:8000/notification', 'develop')
     .setTitle(docName)
     .setDescription(docDesc)
     .setVersion(docVersion)

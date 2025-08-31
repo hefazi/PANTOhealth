@@ -8,9 +8,13 @@ import { LoggingMiddleware } from 'src/middlewares/logging.middleware';
 import { HttpExceptionFilter } from 'src/filters/http.exception.filter';
 
 import { AppController } from './app.controller';
+import { CommonModule } from '../common/common.module';
+import { TerminusModule } from '@nestjs/terminus';
 
 @Module({
   imports: [
+    CommonModule,
+    TerminusModule,
     ClientsModule.registerAsync([
       {
         name: 'X_RAY_SERVICE',
