@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from 'src/interceptors/response.interceptor';
 
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -8,9 +8,23 @@ import { LoggingMiddleware } from 'src/middlewares/logging.middleware';
 import { HttpExceptionFilter } from 'src/filters/http.exception.filter';
 
 import { AppController } from './app.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import { XRayModule } from '../modules/xRay/x.ray.module';
+import { TerminusModule } from '@nestjs/terminus';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
+    CommonModule,
+    TerminusModule,
+    XRayModule,
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('app.database.url'),
+      }),
+      inject: [ConfigService],
+    }),
     ClientsModule.registerAsync([
       {
         name: 'X_RAY_SERVICE',

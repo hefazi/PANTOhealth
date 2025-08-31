@@ -21,6 +21,9 @@ export default registerAs(
       port: process.env.HTTP_PORT
         ? Number.parseInt(process.env.HTTP_PORT)
         : 9001,
+    },
+    database:{
+      url:process.env.DATABASE_URL
     }
   }),
 );
